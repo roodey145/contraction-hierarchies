@@ -1,5 +1,6 @@
 package ch;
 
+import java.io.File;
 import java.util.Scanner;
 
 class Main {
@@ -13,6 +14,7 @@ class Main {
         long id;
         float x, y;
         long[] ids = new long[n];
+        // int step = 1000;
 
         for (int i = 0; i < n; i++) {
             id = sc.nextLong();
@@ -22,6 +24,9 @@ class Main {
             y = Float.parseFloat(sc.next());
 
             g.addVertex(id, new Graph.Vertex(x, y));
+            // if (i % step == 0) {
+            //     System.out.println((i / step) + " of " + (n / step));
+            // }
         }
 
         long from, to;
@@ -32,15 +37,27 @@ class Main {
             to = sc.nextLong();
             weight = sc.nextInt();
             g.addUndirectedEdge(from, to, weight);
+
+            // if (i % step == 0) {
+            //     System.out.println((i / step) + " of " + (m / step));
+            // }
         }
 
         return g;
     }
 
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(System.in);
-        var graph = readGraph(sc);
+        File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\denmark.graph");
+
+        Scanner sc = new Scanner(file);
+        Graph graph = readGraph(sc);
         sc.close();
         System.out.println(graph.n + " " + graph.m);
+
+        Result<Integer> result =  Dijkstra.shortestPath(graph, 115724, 4214353078l);
+        System.out.println("Expected: " + result.result + ", Visited: " + (result.relaxed) + ", Time: " + (result.time / 1000));
+        result = BidirectionalDijkstra.shortestPath(graph, 115724, 4214353078l);
+        System.out.println("Actual: " + result.result + ", Visited: " + (result.relaxed) + ", Time: " + (result.time / 1000));
+
     }
 }

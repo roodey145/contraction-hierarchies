@@ -66,6 +66,10 @@ public class Graph {
         return this.edges.get(u);
     }
 
+    public boolean exists(long u) {
+        return this.edges.containsKey(u);
+    }
+
     public Vertex getVertex(long id) {
         return this.vertices.get(id);
     }
