@@ -22,7 +22,8 @@ public class BidirectionalDijkstra {
         final Map<Long, Integer> dr = new HashMap<>();
         dr.put(to, 0);
 
-        final Set<Long> settled = new HashSet<>();
+        final Set<Long> settledl = new HashSet<>();
+        final Set<Long> settledr = new HashSet<>();
         final PriorityQueue<PQElem> Ql = new PriorityQueue<>();
         Ql.add(new PQElem(0, from));
         final PriorityQueue<PQElem> Qr = new PriorityQueue<>();
@@ -33,7 +34,6 @@ public class BidirectionalDijkstra {
         Map<Long, Integer> dists;
 
         int d = Integer.MAX_VALUE;
-        boolean firstSettle = true;
         boolean foundOptimistic = false;
         
 
@@ -50,44 +50,8 @@ public class BidirectionalDijkstra {
             Long u = minElm.v;
             int dist = minElm.key;
 
-            if(settled.contains(u)) {
-                int QlMin = !Ql.isEmpty() ? Ql.peek().key : Integer.MAX_VALUE;
-                int QrMin = !Qr.isEmpty() ? Qr.peek().key : Integer.MAX_VALUE;
-
-                if(firstSettle) {
-                    System.out.println("First Settle: " + d + ", Visited: " + (relaxed) + ", Time: " + ((System.nanoTime() - start) / 1000));
-                    firstSettle = false;
-                }
-
-                if(dl.containsKey(u)){
-                    int dlDist = dl.get(u);
-
-                    if(dl.containsKey(u) && dlDist + dist < QlMin && dlDist + dist < QrMin) {
-                        // Should be the correct solution 
-                        System.out.println("Min Dist: " + (dlDist + dist));
-                        break;
-                    }
-                }
-                
-                if(dr.containsKey(u)) {
-                    int drDist = dr.get(u);
-
-                    if(dr.containsKey(u) && drDist + dist < QlMin && drDist + dist < QrMin) {
-                        // Should be the correct solution 
-                        System.out.println("Min Dist: " + (drDist + dist));
-                        break;
-                    }
-                }
-    
-                if(d < QlMin && d < QrMin) {
-                    break;
-                }
-
-                if(d != Integer.MAX_VALUE) break; // Optimistic 
-
-                // break;
-            }
-
+            Set<Long> settled = (i == 0) ? settledl : settledr;
+            if (settled.contains(u)) break;
             settled.add(u);
 
             dists = i == 0 ? dl : dr;
@@ -103,12 +67,16 @@ public class BidirectionalDijkstra {
 
                 if(dl.containsKey(v) && dr.containsKey(v)) {
                     d = d < dl.get(v) + dr.get(v) ? d : dl.get(v) + dr.get(v);
-                    // System.out.println("First Settle: " + d + ", Visited: " + (relaxed) + ", Time: " + ((System.nanoTime() - start) / 1000));
-                    foundOptimistic = true;
-                    break;
-                    // System.out.println("D:" + d + ", Dl: " + dl.get(v) + ", Dr: " + dr.get(v));
+
+                    
                 }
 
+            }
+
+            int QlMin = !Ql.isEmpty() ? Ql.peek().key : Integer.MAX_VALUE;
+            int QrMin = !Qr.isEmpty() ? Qr.peek().key : Integer.MAX_VALUE;
+            if(d <= QlMin && d <= QrMin) {
+                break;
             }
 
 
@@ -116,7 +84,7 @@ public class BidirectionalDijkstra {
 
         long end = System.nanoTime();
 
-        return new Result<>(end - start, relaxed, d);
+        return new Result<>(end - start, relaxed, (d == Integer.MAX_VALUE ? -1 : d));
     }
 
 
