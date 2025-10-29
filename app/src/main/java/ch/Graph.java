@@ -2,19 +2,39 @@ package ch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 
 public class Graph {
     int n, m;
+    Graph contracted;
 
     public static class Vertex {
         float x, y;
+        boolean contracted = false; // True means vertex is removed from graph
+        int rank = 0;
 
         public Vertex(float x, float y) {
             this.x = x;
             this.y = y;
+        }
+
+        public void contract() {
+            contracted = true;
+        }
+
+        public boolean isRemoved() {
+            return contracted;
+        }
+
+        public void registerRank(int rank) {
+            this.rank = rank;
+        }
+
+        public int getRank() {
+            return rank;
         }
     }
 
@@ -78,13 +98,123 @@ public class Graph {
         return this.edges.get(v).size();
     }
 
-    public int contract(long v) {
-        // To be filled out
-        return 0; // Should return something
+    public int avgWeight(long v) {
+        List<Edge> neighbours = getNeighbours(v);
+        cleanse(neighbours);
+
+        int avgWeight = 0;
+
+        for(Edge e : neighbours) {
+            avgWeight += e.weight;
+        }
+
+        return avgWeight / neighbours.size();
     }
 
-    public int getEdgeDifference(long v) {
-        // To be filled out
-        return 0; // Should return something
+    public int contract(long v, int order) throws Exception  {
+        // if(contracted == null) contracted = new Graph();
+
+        int added = 0;
+        if (!exists(v)) {
+            throw new Exception("Vertex does not exist!");
+        }
+
+        // Register the order in which the vertex has been contracted
+        getVertex(v).registerRank(order);
+
+        List<Edge> neighbours = getNeighbours(v);
+
+        // Remove the edges connecting to removed vertices.
+        Iterator<Edge> iter = neighbours.iterator();
+        while(iter.hasNext()) {
+            Edge edge = iter.next();
+            if(getVertex(edge.to).isRemoved()) {
+                iter.remove();
+            }
+        }
+
+        long from;
+        long to;
+        int e1Weight;
+        int e2Weight;
+
+        for (int outer = 0; outer < neighbours.size() - 1; outer++) {
+            from = neighbours.get(outer).to;
+            e1Weight = neighbours.get(outer).weight;
+
+            for (int inner = outer + 1; inner < neighbours.size(); inner++) {
+                to = neighbours.get(inner).to;
+                e2Weight = neighbours.get(inner).weight;
+
+                // Check if there is another short path
+                Result<Integer> result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+
+                if(/*result.result < 0 || */result.result >= e1Weight + e2Weight) {
+                    // Add a shortcut
+                    added++;
+                    // contracted.addUndirectedEdge(from, to, v, e2Weight);
+                    addUndirectedEdge(from, to, v, e2Weight);
+                }
+            }
+        }
+
+        return added - neighbours.size(); // Should probably return the rank
+    }
+
+    public int getEdgeDifference(long v) throws Exception  {
+        int added = 0;
+        if (!exists(v)) {
+            throw new Exception("Vertex does not exist!");
+        }
+
+        List<Edge> neighbours = getNeighbours(v);
+
+        // Remove the edges connecting to removed vertices.
+        Iterator<Edge> iter = neighbours.iterator();
+        while(iter.hasNext()) {
+            Edge edge = iter.next();
+            if(getVertex(edge.to).isRemoved()) {
+                iter.remove();
+            }
+        }
+
+
+        long from;
+        long to;
+        int e1Weight;
+        int e2Weight;
+
+        for (int outer = 0; outer < neighbours.size() - 1; outer++) {
+            from = neighbours.get(outer).to;
+            e1Weight = neighbours.get(outer).weight;
+
+            for (int inner = outer + 1; inner < neighbours.size(); inner++) {
+                to = neighbours.get(inner).to;
+                e2Weight = neighbours.get(inner).weight;
+
+                // Check if there is another short path
+                Result<Integer> result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+
+                if(result.result < 0 || result.result == e1Weight + e2Weight) {
+                    // Add a shortcut
+                    added++;
+                }
+            }
+        }
+
+        // The lower the number is the better
+        return added - neighbours.size();
+    }
+
+    
+    public void cleanse(List<Edge> neighbours) {
+        // Remove the edges connecting to removed vertices.
+        Iterator<Edge> iter = neighbours.iterator();
+        while(iter.hasNext()) {
+            Edge edge = iter.next();
+            if(getVertex(edge.to).isRemoved()) {
+                iter.remove();
+            }
+        }
     }
 }

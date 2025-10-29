@@ -48,6 +48,10 @@ class Main {
         return g;
     }
 
+    public static long[] getIds() {
+        return ids;
+    }
+
     public static void main(String[] args) throws Exception {
         File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\denmark.graph");
 
@@ -55,6 +59,12 @@ class Main {
         Graph graph = readGraph(sc);
         sc.close();
         System.out.println(graph.n + " " + graph.m);
+
+        ContractionHierachy ch = new ContractionHierachy();
+        ch.storeGraph(graph);
+        ch.preprocess();
+
+        if(true) return;
 
         Result<Integer> result =  Dijkstra.shortestPath(graph, 115724, 4214353078l);
         System.out.println("Expected: " + result.result + ", Visited: " + (result.relaxed) + ", Time: " + (result.time / 1000));
@@ -89,6 +99,10 @@ class Main {
         long biTime = 0;
         int biResult = 0;
 
+        int biRelaxed2 = 0;
+        long biTime2 = 0;
+        int biResult2 = 0;
+
         for (int i = 0; i < pairs.length; i++) {
             long from = ids[pairs[i][0]];
             long to = ids[pairs[i][1]];
@@ -97,21 +111,29 @@ class Main {
             uniTime += result.time / 1000;
             uniResult = result.result;
 
-            result = BidirectionalDijkstra.shortestPath(graph, from, to);
-            biRelaxed += result.relaxed;
-            biTime += result.time / 1000;
-            biResult = result.result;
+            // result = BidirectionalDijkstra.shortestPath(graph, from, to);
+            // biRelaxed += result.relaxed;
+            // biTime += result.time / 1000;
+            // biResult = result.result;
 
-            if(uniResult != biResult) {
-                System.out.println("Incorrect Result - Bi: " + biResult + ", Uni: " + uniResult);
+
+            result = BidirectionalDijkstra.shortestPath2(graph, from, to);
+            biRelaxed2 += result.relaxed;
+            biTime2 += result.time / 1000;
+            biResult2 = result.result;
+
+            System.out.println("Uni Result: " + uniResult);
+
+            if(uniResult != biResult || uniResult != biResult2) {
+                System.out.println("Incorrect Result - Bi: " + biResult + ", Bi2: " + biResult2 + ", Uni: " + uniResult);
             }
             System.out.println("I: " + i + " - (UniTime: " + (uniTime / (i + 1)) + ", UniRelaxed: " + (uniRelaxed / (i + 1))
-                                         + " (BiTime: " + (biTime / (i + 1)) + ", BiRelaxed: " + (biRelaxed / (i + 1)));
+                                         + " (BiTime: " + (biTime / (i + 1)) + ", BiRelaxed: " + (biRelaxed / (i + 1))
+                                         + " (BiTime2: " + (biTime2 / (i + 1)) + ", BiRelaxed2: " + (biRelaxed2 / (i + 1)));
         }
 
         System.out.println("Avg Uni Relaxed: " + (uniRelaxed / 1000) + ", Avg Uni Time: " + (uniTime / 1000));
+        System.out.println("Avg Bi Relaxed: " + (biRelaxed2 / 1000) + ", Avg Bi Time: " + (biTime2 / 1000));
         System.out.println("Avg Bi Relaxed: " + (biRelaxed / 1000) + ", Avg Bi Time: " + (biTime / 1000));
-
-
     }
 }
