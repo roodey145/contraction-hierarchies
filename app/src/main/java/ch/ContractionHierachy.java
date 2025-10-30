@@ -53,7 +53,10 @@ public class ContractionHierachy {
             // If vertex is the lowest rank then proceed
             if(!pq.isEmpty() && pq.peek().key < tRank) {
                 // Rank is higher now. Re-insert updated element and skip it for now
-                pq.add(new PQElem(tRank, elem.v));
+                // pq.add(new PQElem(tRank, elem.v));
+                // Update element weight
+                elem.updateKey(tRank);
+                pq.add(elem);
 
                 if((++reorder) >= ids.length) {
                     System.out.println("Size: " + pq.size() + ", Reordered: " + reorder);
@@ -67,11 +70,11 @@ public class ContractionHierachy {
             g.contract(elem.v, ++contractedVertices);
             reorder = 0;
 
-            System.out.print(".");
+            // System.out.print(".");
 
             if((++cyclicContractedV) == reportingStep) {
                 cyclicContractedV = 0;
-                System.out.println("Current Progress: " + (contractedVertices / reportingStep) + "/" + (ids.length / reportingStep));
+                System.out.println("\nCurrent Progress: " + (contractedVertices / reportingStep) + "/" + (ids.length / reportingStep));
             }
 
             if(cyclicContractedV % smallStep == 0 && cyclicContractedV != 0) {
@@ -87,6 +90,6 @@ public class ContractionHierachy {
         // this might result in e.g. -5 - 10 i.e. -15. This number is negated
         // due to the Priority queue as it starts from the lowest ranked edges
         // and we want to start with useless edges first.
-        return -(g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id));
+        return /*-*/(g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id));
     }
 }

@@ -13,4 +13,8 @@ public class PQElem implements Comparable<PQElem> {
     public int compareTo(PQElem o) {
         return key - o.key;
     }
+
+    public void updateKey(int key) {
+        this.key = key;
+    }
 }

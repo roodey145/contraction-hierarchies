@@ -2,13 +2,16 @@ package ch;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class ContractionHierachyTest {
     private Graph g;
     @Before
-    public void setUp() {
+    public void setUp() throws FileNotFoundException, UnsupportedEncodingException {
         g = new Graph();
         for(int i = 0; i < 6; i++){
             g.addVertex(i, new   Graph.Vertex(i, i)); 
@@ -37,6 +40,8 @@ public class ContractionHierachyTest {
 
         // Connect w2
         g.addUndirectedEdge(4, 5, 1); // w2 -> w3 && w3 -> w2
+
+        g.storeGraph();
 
 
     }

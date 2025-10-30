@@ -127,7 +127,7 @@ public class BidirectionalDijkstra {
         int tKey;
         long v;
 
-        boolean firstMin = true;
+        // boolean firstMin = true;
 
         while(!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
@@ -141,24 +141,9 @@ public class BidirectionalDijkstra {
 
             minElem = Qi.poll();
 
-            // Check if the new path is shorter than the registered one
-            if(!di.containsKey(minElem.v) || di.get(minElem.v) > minElem.key) {
-                // Element either doesn't exist or the found path is shorter than the previous one
-                di.put(minElem.v, minElem.key);
-            }
-
-            if(settled.contains(minElem.v)) {
-                // This element has already been settled by the other queue
-                if(firstMin && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
-                    // System.out.println("First Found Min: " + (dl.get(minElem.v) + dr.get(minElem.v)));
-                    firstMin = false;
-                    break; // Optimistic break
-                }
-
-                if(d <= Integer.min(QlMin, QrMin)) {
-                    // Distance cannot go any lower
-                    break;
-                }
+            // This element has already been settled by the other queue
+            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
+                break;
             }
 
             settled.add(minElem.v);
@@ -221,8 +206,6 @@ public class BidirectionalDijkstra {
         int tKey;
         long v;
 
-        boolean firstMin = true;
-
         while(!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
             QrMin = Qr.isEmpty() ? Integer.MAX_VALUE : Qr.peek().key;
@@ -237,24 +220,9 @@ public class BidirectionalDijkstra {
 
             if(minElem.key >= weightLimit) break; // Exceeded the limit
 
-            // Check if the new path is shorter than the registered one
-            if(!di.containsKey(minElem.v) || di.get(minElem.v) > minElem.key) {
-                // Element either doesn't exist or the found path is shorter than the previous one
-                di.put(minElem.v, minElem.key);
-            }
-
-            if(settled.contains(minElem.v)) {
-                // This element has already been settled by the other queue
-                if(firstMin && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
-                    // System.out.println("First Found Min: " + (dl.get(minElem.v) + dr.get(minElem.v)));
-                    firstMin = false;
-                    break; // Optimistic break
-                }
-
-                if(d <= Integer.min(QlMin, QrMin)) {
-                    // Distance cannot go any lower
-                    break;
-                }
+            // This element has already been settled by the other queue
+            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
+                break;
             }
 
             settled.add(minElem.v);
@@ -315,7 +283,6 @@ public class BidirectionalDijkstra {
         int tKey;
         long v;
 
-        boolean firstMin = true;
 
         while(!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
@@ -329,24 +296,9 @@ public class BidirectionalDijkstra {
 
             minElem = Qi.poll();
 
-            // Check if the new path is shorter than the registered one
-            if(!di.containsKey(minElem.v) || di.get(minElem.v) > minElem.key) {
-                // Element either doesn't exist or the found path is shorter than the previous one
-                di.put(minElem.v, minElem.key);
-            }
-
-            if(settled.contains(minElem.v)) {
-                // This element has already been settled by the other queue
-                if(firstMin && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
-                    System.out.println("First Found Min: " + (dl.get(minElem.v) + dr.get(minElem.v)));
-                    firstMin = false;
-                    break; // Optimistic break
-                }
-
-                if(d <= Integer.min(QlMin, QrMin)) {
-                    // Distance cannot go any lower
-                    break;
-                }
+            // This element has already been settled by the other queue
+            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
+                break;
             }
 
             settled.add(minElem.v);
@@ -366,8 +318,10 @@ public class BidirectionalDijkstra {
                     d = Integer.min(d, dl.get(v) + dr.get(v));
                 }
 
-                if(relaxed >= edgeLimit) break; // Exceeded the limit
+                // if(relaxed >= edgeLimit) break; // Exceeded the limit
             }
+
+            if(settled.size() >= edgeLimit) break; // Exceeded the limit
         }
         long end = System.nanoTime();
 

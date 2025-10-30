@@ -63,6 +63,8 @@ class Main {
         ContractionHierachy ch = new ContractionHierachy();
         ch.storeGraph(graph);
         ch.preprocess();
+        System.out.println("Done PreProcessing");
+        graph.storeGraph();
 
         if(true) return;
 
@@ -122,14 +124,15 @@ class Main {
             biTime2 += result.time / 1000;
             biResult2 = result.result;
 
-            System.out.println("Uni Result: " + uniResult);
+            // System.out.println("Uni Result: " + uniResult);
 
-            if(uniResult != biResult || uniResult != biResult2) {
+            if(/*uniResult != biResult || */uniResult != biResult2) {
                 System.out.println("Incorrect Result - Bi: " + biResult + ", Bi2: " + biResult2 + ", Uni: " + uniResult);
+                break;
             }
             System.out.println("I: " + i + " - (UniTime: " + (uniTime / (i + 1)) + ", UniRelaxed: " + (uniRelaxed / (i + 1))
-                                         + " (BiTime: " + (biTime / (i + 1)) + ", BiRelaxed: " + (biRelaxed / (i + 1))
-                                         + " (BiTime2: " + (biTime2 / (i + 1)) + ", BiRelaxed2: " + (biRelaxed2 / (i + 1)));
+                                        //  + " (BiTime: " + (biTime / (i + 1)) + ", BiRelaxed: " + (biRelaxed / (i + 1))
+                                         + " (BiTime2: " + (biTime2 / (i + 1)) + ", BiRelaxed2: " + (biRelaxed2 / (i + 1)) + ")");
         }
 
         System.out.println("Avg Uni Relaxed: " + (uniRelaxed / 1000) + ", Avg Uni Time: " + (uniTime / 1000));

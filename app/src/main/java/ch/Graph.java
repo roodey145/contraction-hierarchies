@@ -1,17 +1,24 @@
 package ch;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 
 public class Graph {
+
     int n, m;
     Graph contracted;
 
     public static class Vertex {
+
         float x, y;
         boolean contracted = false; // True means vertex is removed from graph
         int rank = 0;
@@ -39,6 +46,7 @@ public class Graph {
     }
 
     public class Edge {
+
         long to;
         int weight;
         long contracted; // only used by contraction hierachy, marks the vertex from which this edge resulted.
@@ -76,6 +84,10 @@ public class Graph {
     public void addUndirectedEdge(long u, long v, long contracted, int weight) {
         addEdge(u, v, contracted, weight);
         addEdge(v, u, contracted, weight);
+
+        if (edges.size() > 10_000_000 || vertices.size() > 10_000_000) {
+            System.out.println("M: " + this.m + ", N: " + this.n);
+        }
     }
 
     public void addUndirectedEdge(long u, long v, int weight) {
@@ -104,14 +116,14 @@ public class Graph {
 
         int avgWeight = 0;
 
-        for(Edge e : neighbours) {
+        for (Edge e : neighbours) {
             avgWeight += e.weight;
         }
 
         return avgWeight / neighbours.size();
     }
 
-    public int contract(long v, int order) throws Exception  {
+    public int contract(long v, int order) throws Exception {
         // if(contracted == null) contracted = new Graph();
 
         int added = 0;
@@ -123,12 +135,17 @@ public class Graph {
         getVertex(v).registerRank(order);
 
         List<Edge> neighbours = getNeighbours(v);
+        if (neighbours.size() > 1000) {
+            System.out.println("Neighbours: " + neighbours);
+        }
+
+        int size = neighbours.size();
 
         // Remove the edges connecting to removed vertices.
         Iterator<Edge> iter = neighbours.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Edge edge = iter.next();
-            if(getVertex(edge.to).isRemoved()) {
+            if (getVertex(edge.to).isRemoved()) {
                 iter.remove();
             }
         }
@@ -137,19 +154,26 @@ public class Graph {
         long to;
         int e1Weight;
         int e2Weight;
+        Result<Integer> result;
 
-        for (int outer = 0; outer < neighbours.size() - 1; outer++) {
+        // int iteration = 0;
+        for (int outer = 0; outer < /*neighbours.size()*/ size - 1; outer++) {
             from = neighbours.get(outer).to;
             e1Weight = neighbours.get(outer).weight;
 
-            for (int inner = outer + 1; inner < neighbours.size(); inner++) {
+            for (int inner = outer + 1; inner < /*neighbours.size()*/ size; inner++) {
                 to = neighbours.get(inner).to;
                 e2Weight = neighbours.get(inner).weight;
+                // iteration++;
 
+                // if(neighbours.size() > size) {
+                //     break; // To many edges
+                // }
                 // Check if there is another short path
-                Result<Integer> result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 25);
 
-                if(/*result.result < 0 || */result.result >= e1Weight + e2Weight) {
+                if (/*result.result < 0 || */result.result >= e1Weight + e2Weight) {
                     // Add a shortcut
                     added++;
                     // contracted.addUndirectedEdge(from, to, v, e2Weight);
@@ -161,7 +185,7 @@ public class Graph {
         return added - neighbours.size(); // Should probably return the rank
     }
 
-    public int getEdgeDifference(long v) throws Exception  {
+    public int getEdgeDifference(long v) throws Exception {
         int added = 0;
         if (!exists(v)) {
             throw new Exception("Vertex does not exist!");
@@ -171,31 +195,34 @@ public class Graph {
 
         // Remove the edges connecting to removed vertices.
         Iterator<Edge> iter = neighbours.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Edge edge = iter.next();
-            if(getVertex(edge.to).isRemoved()) {
+            if (getVertex(edge.to).isRemoved()) {
                 iter.remove();
             }
         }
-
 
         long from;
         long to;
         int e1Weight;
         int e2Weight;
 
-        for (int outer = 0; outer < neighbours.size() - 1; outer++) {
+        int size = neighbours.size();
+        Result<Integer> result;
+
+        for (int outer = 0; outer < size - 1; outer++) {
             from = neighbours.get(outer).to;
             e1Weight = neighbours.get(outer).weight;
 
-            for (int inner = outer + 1; inner < neighbours.size(); inner++) {
+            for (int inner = outer + 1; inner < size; inner++) {
                 to = neighbours.get(inner).to;
                 e2Weight = neighbours.get(inner).weight;
 
                 // Check if there is another short path
-                Result<Integer> result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 25);
 
-                if(result.result < 0 || result.result == e1Weight + e2Weight) {
+                if (result.result < 0 || result.result == e1Weight + e2Weight) {
                     // Add a shortcut
                     added++;
                 }
@@ -203,18 +230,54 @@ public class Graph {
         }
 
         // The lower the number is the better
-        return added - neighbours.size();
+        return added - size;
     }
 
-    
     public void cleanse(List<Edge> neighbours) {
         // Remove the edges connecting to removed vertices.
         Iterator<Edge> iter = neighbours.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Edge edge = iter.next();
-            if(getVertex(edge.to).isRemoved()) {
+            if (getVertex(edge.to).isRemoved()) {
                 iter.remove();
             }
         }
+    }
+
+    public void storeGraph() throws FileNotFoundException, UnsupportedEncodingException {
+        Path currentRelativePath = Paths.get("");
+        String s = currentRelativePath.toAbsolutePath().toString();
+        PrintWriter writer = new PrintWriter(s + "/contracted2.graph", "UTF-8");
+
+        // Vertices and edges
+        writer.println(n + " " + m);
+        Set<Long> idsSet = vertices.keySet();
+        Iterator<Long> ids = idsSet.iterator();
+        long id;
+        Vertex v;
+        while (ids.hasNext()) {
+            id = ids.next();
+            v = getVertex(id);
+            writer.println(v.x + " " + v.y + " " + v.rank);
+        }
+
+        ids = edges.keySet().iterator();
+        int step = 1000;
+        int completedVertcies = 0;
+        List<Edge> edgesList;
+        while (ids.hasNext()) {
+            id = ids.next();
+            completedVertcies++;
+            edgesList = getNeighbours(id);
+            for (int i = 0; i < edgesList.size(); i++) {
+                writer.println(id + " " + edgesList.get(i).to + " " + edgesList.get(i).weight + " " + edgesList.get(i).contracted);
+            }
+
+            if(completedVertcies >= step) {
+                System.out.println("Percentage: " + ((float)completedVertcies / (float)idsSet.size()));
+            }
+        }
+
+        writer.close();
     }
 }
