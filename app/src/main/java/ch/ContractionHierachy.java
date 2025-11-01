@@ -33,6 +33,9 @@ public class ContractionHierachy {
             pq.add(new PQElem(rank(id), id));
         }
 
+        int initialSize = pq.size();
+        int step = (int)(initialSize * 0.15); // Every 15% reorder
+
         System.out.println("Initial Vertices Rank!");
 
         int contractedVertices = 0;
@@ -66,6 +69,10 @@ public class ContractionHierachy {
                 continue;
             }
 
+            if(pq.size() % step == 0 && pq.size() != initialSize) {
+                orderQueue();
+            }
+
             // Contract vertex
             g.contract(elem.v, ++contractedVertices);
             reorder = 0;
@@ -82,6 +89,21 @@ public class ContractionHierachy {
             }
         }
     }
+
+
+    // Reorder priority queue
+    public void orderQueue() throws Exception {
+        Object[] elements = pq.toArray();
+        pq.clear();
+        PQElem e;
+        for(Object elem : elements) {
+            e = (PQElem) elem;
+            e.key = rank(e.v);
+            pq.add(e);
+        }
+
+        System.out.println("Reordered");
+    }
     
 
     public int rank(long id) throws Exception {
@@ -90,6 +112,6 @@ public class ContractionHierachy {
         // this might result in e.g. -5 - 10 i.e. -15. This number is negated
         // due to the Priority queue as it starts from the lowest ranked edges
         // and we want to start with useless edges first.
-        return /*-*/(g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id));
+        return /*-*/(/*g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id) */ g.getEdgeDifference(id) /* - g.degree(id)+ g.avgWeight(id)*/);
     }
 }

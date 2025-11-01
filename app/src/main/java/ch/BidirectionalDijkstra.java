@@ -173,7 +173,7 @@ public class BidirectionalDijkstra {
 
     public static Result<Integer> shortestPathWeightLimited(Graph g, long from, long to, int weightLimit) {
         if(from == to) return new Result<Integer>(0, 0, 0);
-
+        // weightLimit = weightLimit / 2;
 
         long start = System.nanoTime();
         // Left distances map focuses on the start
@@ -218,7 +218,7 @@ public class BidirectionalDijkstra {
 
             minElem = Qi.poll();
 
-            if(minElem.key >= weightLimit) break; // Exceeded the limit
+            if(minElem.key/* * 1000 */>= weightLimit) break; // Exceeded the limit
 
             // This element has already been settled by the other queue
             if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {

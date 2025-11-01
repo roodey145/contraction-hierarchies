@@ -7,10 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Graph {
 
@@ -112,7 +114,7 @@ public class Graph {
 
     public int avgWeight(long v) {
         List<Edge> neighbours = getNeighbours(v);
-        cleanse(neighbours);
+        neighbours = cleanse(neighbours);
 
         int avgWeight = 0;
 
@@ -120,7 +122,7 @@ public class Graph {
             avgWeight += e.weight;
         }
 
-        return avgWeight / neighbours.size();
+        return avgWeight / (neighbours.isEmpty() ? 1 : neighbours.size());
     }
 
     public int contract(long v, int order) throws Exception {
@@ -132,23 +134,26 @@ public class Graph {
         }
 
         // Register the order in which the vertex has been contracted
-        getVertex(v).registerRank(order);
+        Vertex vertex = getVertex(v);
+        vertex.registerRank(order);
+        vertex.contract();
 
         List<Edge> neighbours = getNeighbours(v);
-        if (neighbours.size() > 1000) {
-            System.out.println("Neighbours: " + neighbours);
-        }
-
-        int size = neighbours.size();
+        // if (neighbours.size() > 1000) {
+        //     System.out.println("Neighbours: " + neighbours);
+        // }
 
         // Remove the edges connecting to removed vertices.
-        Iterator<Edge> iter = neighbours.iterator();
-        while (iter.hasNext()) {
-            Edge edge = iter.next();
-            if (getVertex(edge.to).isRemoved()) {
-                iter.remove();
-            }
-        }
+        neighbours = cleanse(neighbours);
+        // Iterator<Edge> iter = neighbours.iterator();
+        // while (iter.hasNext()) {
+        //     Edge edge = iter.next();
+        //     if (getVertex(edge.to).isRemoved()) {
+        //         iter.remove();
+        //     }
+        // }
+        int size = neighbours.size();
+        int avgWeight = avgWeight(v);
 
         long from;
         long to;
@@ -170,14 +175,14 @@ public class Graph {
                 //     break; // To many edges
                 // }
                 // Check if there is another short path
-                result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
-                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 25);
+                // result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
 
                 if (/*result.result < 0 || */result.result >= e1Weight + e2Weight) {
                     // Add a shortcut
                     added++;
                     // contracted.addUndirectedEdge(from, to, v, e2Weight);
-                    addUndirectedEdge(from, to, v, e2Weight);
+                    addUndirectedEdge(from, to, v, e1Weight + e2Weight);
                 }
             }
         }
@@ -194,13 +199,14 @@ public class Graph {
         List<Edge> neighbours = getNeighbours(v);
 
         // Remove the edges connecting to removed vertices.
-        Iterator<Edge> iter = neighbours.iterator();
-        while (iter.hasNext()) {
-            Edge edge = iter.next();
-            if (getVertex(edge.to).isRemoved()) {
-                iter.remove();
-            }
-        }
+        neighbours = cleanse(neighbours);
+        // Iterator<Edge> iter = neighbours.iterator();
+        // while (iter.hasNext()) {
+        //     Edge edge = iter.next();
+        //     if (getVertex(edge.to).isRemoved()) {
+        //         iter.remove();
+        //     }
+        // }
 
         long from;
         long to;
@@ -219,8 +225,8 @@ public class Graph {
                 e2Weight = neighbours.get(inner).weight;
 
                 // Check if there is another short path
-                result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
-                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 25);
+                // result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
+                result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
 
                 if (result.result < 0 || result.result == e1Weight + e2Weight) {
                     // Add a shortcut
@@ -233,21 +239,27 @@ public class Graph {
         return added - size;
     }
 
-    public void cleanse(List<Edge> neighbours) {
+    public List<Edge> cleanse(List<Edge> neighbours) {
+        HashMap<Long, Edge> map = new HashMap<Long, Edge>();
         // Remove the edges connecting to removed vertices.
         Iterator<Edge> iter = neighbours.iterator();
         while (iter.hasNext()) {
             Edge edge = iter.next();
-            if (getVertex(edge.to).isRemoved()) {
+            if (getVertex(edge.to).isRemoved()/* || set.containsKey(edge.to)*/) {
                 iter.remove();
+            } else if (!map.containsKey(edge.to) || edge.weight < map.get(edge.to).weight) {
+                // If vertex found for the first time or the previous one is smaller
+                map.put(edge.to, edge);
             }
         }
+
+        return map.values().stream().collect(Collectors.toList());
     }
 
     public void storeGraph() throws FileNotFoundException, UnsupportedEncodingException {
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
-        PrintWriter writer = new PrintWriter(s + "/contracted2.graph", "UTF-8");
+        PrintWriter writer = new PrintWriter(s + "/contracted12.graph", "UTF-8");
 
         // Vertices and edges
         writer.println(n + " " + m);
@@ -258,11 +270,11 @@ public class Graph {
         while (ids.hasNext()) {
             id = ids.next();
             v = getVertex(id);
-            writer.println(v.x + " " + v.y + " " + v.rank);
+            writer.println(id + " " + v.x + " " + v.y + " " + v.rank);
         }
 
         ids = edges.keySet().iterator();
-        int step = 1000;
+        int step = 25000;
         int completedVertcies = 0;
         List<Edge> edgesList;
         while (ids.hasNext()) {
@@ -273,8 +285,8 @@ public class Graph {
                 writer.println(id + " " + edgesList.get(i).to + " " + edgesList.get(i).weight + " " + edgesList.get(i).contracted);
             }
 
-            if(completedVertcies >= step) {
-                System.out.println("Percentage: " + ((float)completedVertcies / (float)idsSet.size()));
+            if (completedVertcies >= step) {
+                System.out.println("Percentage: " + ((float) completedVertcies / (float) idsSet.size()));
             }
         }
 
