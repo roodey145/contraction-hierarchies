@@ -69,9 +69,9 @@ public class ContractionHierachy {
                 continue;
             }
 
-            if(pq.size() % step == 0 && pq.size() != initialSize) {
-                orderQueue();
-            }
+            // if(pq.size() % step == 0 && pq.size() != initialSize) {
+            //     orderQueue();
+            // }
 
             // Contract vertex
             g.contract(elem.v, ++contractedVertices);
@@ -112,6 +112,6 @@ public class ContractionHierachy {
         // this might result in e.g. -5 - 10 i.e. -15. This number is negated
         // due to the Priority queue as it starts from the lowest ranked edges
         // and we want to start with useless edges first.
-        return /*-*/(/*g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id) */ g.getEdgeDifference(id) /* - g.degree(id)+ g.avgWeight(id)*/);
+        return /*-*/(/*g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id) */ /*g.getEdgeDifference(id)  - */g.degree(id)/*+ g.avgWeight(id)*/);
     }
 }

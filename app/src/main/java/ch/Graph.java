@@ -153,7 +153,7 @@ public class Graph {
         //     }
         // }
         int size = neighbours.size();
-        int avgWeight = avgWeight(v);
+        // int avgWeight = avgWeight(v);
 
         long from;
         long to;
