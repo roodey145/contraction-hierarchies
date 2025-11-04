@@ -176,7 +176,10 @@ public class Graph {
                 // }
                 // Check if there is another short path
                 // result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
-                result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
+                result = BidirectionalDijkstra.shortestPath2(this, from, to);
+                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
+
+                if(result.result == -1) throw new Error("Path was not found!");
 
                 if (/*result.result < 0 || */result.result >= e1Weight + e2Weight) {
                     // Add a shortcut
@@ -226,7 +229,8 @@ public class Graph {
 
                 // Check if there is another short path
                 // result = BidirectionalDijkstra.shortestPathWeightLimited(this, from, to, e1Weight + e2Weight);
-                result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
+                result = BidirectionalDijkstra.shortestPath2(this, from, to);
+                // result = BidirectionalDijkstra.shortestPathEdgesLimited(this, from, to, 15);
 
                 if (result.result < 0 || result.result == e1Weight + e2Weight) {
                     // Add a shortcut
@@ -242,11 +246,9 @@ public class Graph {
     public List<Edge> cleanse(List<Edge> neighbours) {
         HashMap<Long, Edge> map = new HashMap<Long, Edge>();
         // Remove the edges connecting to removed vertices.
-        Iterator<Edge> iter = neighbours.iterator();
-        while (iter.hasNext()) {
-            Edge edge = iter.next();
+        for (Edge edge : neighbours) {
             if (getVertex(edge.to).isRemoved()/* || set.containsKey(edge.to)*/) {
-                iter.remove();
+                // iter.remove();
             } else if (!map.containsKey(edge.to) || edge.weight < map.get(edge.to).weight) {
                 // If vertex found for the first time or the previous one is smaller
                 map.put(edge.to, edge);
@@ -256,10 +258,10 @@ public class Graph {
         return map.values().stream().collect(Collectors.toList());
     }
 
-    public void storeGraph() throws FileNotFoundException, UnsupportedEncodingException {
+    public void storeGraph(String graphName) throws FileNotFoundException, UnsupportedEncodingException {
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
-        PrintWriter writer = new PrintWriter(s + "/contracted12.graph", "UTF-8");
+        PrintWriter writer = new PrintWriter(s + "/" + graphName +  ".graph", "UTF-8");
 
         // Vertices and edges
         writer.println(n + " " + m);

@@ -41,7 +41,7 @@ public class ContractionHierachyTest {
         // Connect w2
         g.addUndirectedEdge(4, 5, 1); // w2 -> w3 && w3 -> w2
 
-        g.storeGraph();
+        g.storeGraph("chGraphTest");
 
 
     }
