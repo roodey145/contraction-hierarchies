@@ -11,11 +11,8 @@ import java.util.Set;
 import ch.Graph.Edge;
 import ch.Graph.Vertex;
 
-
 public class BidirectionalDijkstra {
     // To be made!
-    
-
 
     public static Result<Integer> shortestPath(Graph g, long from, long to) {
         long start = System.nanoTime();
@@ -40,13 +37,12 @@ public class BidirectionalDijkstra {
 
         int d = Integer.MAX_VALUE;
         boolean foundOptimistic = false;
-        
 
-        while(!foundOptimistic && (!Ql.isEmpty() || !Qr.isEmpty())) {
-            if(!Ql.isEmpty() && Ql.peek().compareTo(Qr.peek()) <= 0) {
+        while (!foundOptimistic && (!Ql.isEmpty() || !Qr.isEmpty())) {
+            if (!Ql.isEmpty() && Ql.peek().compareTo(Qr.peek()) <= 0) {
                 // If first element in Ql is less than or equal to first element in Qr
                 i = 0;
-            } else{
+            } else {
                 i = 1;
             }
 
@@ -56,11 +52,13 @@ public class BidirectionalDijkstra {
             int dist = minElm.key;
 
             Set<Long> settled = (i == 0) ? settledl : settledr;
-            if (settled.contains(u)) continue;//break;
+            if (settled.contains(u))
+                continue;// break;
             settled.add(u);
 
             dists = i == 0 ? dl : dr;
-            if(!g.exists(u)) break; // Doesn't exists
+            if (!g.exists(u))
+                break; // Doesn't exists
             for (Graph.Edge e : g.getNeighbours(u)) {
                 relaxed++;
                 long v = e.to;
@@ -70,20 +68,18 @@ public class BidirectionalDijkstra {
                     Qi.add(new PQElem(dist + w, v));
                 }
 
-                if(dl.containsKey(v) && dr.containsKey(v)) {
+                if (dl.containsKey(v) && dr.containsKey(v)) {
                     d = d < dl.get(v) + dr.get(v) ? d : dl.get(v) + dr.get(v);
 
-                    
                 }
 
             }
 
             int QlMin = !Ql.isEmpty() ? Ql.peek().key : Integer.MAX_VALUE;
             int QrMin = !Qr.isEmpty() ? Qr.peek().key : Integer.MAX_VALUE;
-            if(d <= QlMin && d <= QrMin) {
+            if (d <= QlMin && d <= QrMin) {
                 break;
             }
-
 
         }
 
@@ -92,10 +88,9 @@ public class BidirectionalDijkstra {
         return new Result<>(end - start, relaxed, (d == Integer.MAX_VALUE ? -1 : d));
     }
 
-
-
     public static Result<Integer> shortestPathPriority(Graph g, long from, long to) {
-        if(from == to) return new Result<Integer>(0, 0, 0);
+        if (from == to)
+            return new Result<Integer>(0, 0, 0);
 
         long start = System.nanoTime();
         // Left distances map focuses on the start
@@ -105,7 +100,7 @@ public class BidirectionalDijkstra {
         // Right distances map focuses on the target i.e. to
         Map<Long, Integer> dr = new HashMap<>();
         dr.put(to, 0);
-        
+
         int d = Integer.MAX_VALUE;
 
         Set<Long> settled = new HashSet<>();
@@ -130,12 +125,14 @@ public class BidirectionalDijkstra {
 
         // boolean firstMin = true;
 
-        while(!Ql.isEmpty() || !Qr.isEmpty()) {
+        while (!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
             QrMin = Qr.isEmpty() ? Integer.MAX_VALUE : Qr.peek().key;
 
-            if(QlMin <= QrMin) i = 0;
-            else i = 1;
+            if (QlMin <= QrMin)
+                i = 0;
+            else
+                i = 1;
 
             Qi = i == 0 ? Ql : Qr; // Priority queue
             di = i == 0 ? dl : dr; // Distances
@@ -143,32 +140,36 @@ public class BidirectionalDijkstra {
             minElem = Qi.poll();
 
             // This element has already been settled by the other queue
-            // if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
-            //     break;
+            // if(settled.contains(minElem.v) && dl.containsKey(minElem.v) &&
+            // dr.containsKey(minElem.v)){
+            // break; // Using this complete much faster but gives incorrect answer...
             // }
-            /*else if(settled.contains(minElem.v)) {
-                System.out.println("Settled");
-            }*/
+            /*
+             * else if(settled.contains(minElem.v)) {
+             * System.out.println("Settled");
+             * }
+             */
 
-            if(d < minElem.key) {
+            if (d < minElem.key) {
                 break;
             }
 
             settled.add(minElem.v);
 
-            if(!g.exists(minElem.v)) break; // Doesn't exists
+            if (!g.exists(minElem.v))
+                break; // Doesn't exists
             List<Edge> edges = higherPriorityEdges(g, g.getNeighbours(minElem.v), g.getVertex(minElem.v).getRank());
-            for(Edge e : edges) {
+            for (Edge e : edges) {
                 relaxed++;
                 v = e.to;
                 tWeight = e.weight;
                 tKey = di.getOrDefault(v, Integer.MAX_VALUE);
-                if(minElem.key + tWeight < tKey) {
+                if (minElem.key + tWeight < tKey) {
                     di.put(v, minElem.key + tWeight);
                     Qi.add(new PQElem(minElem.key + tWeight, v));
                 }
-                
-                if(dl.containsKey(v) && dr.containsKey(v)) {
+
+                if (dl.containsKey(v) && dr.containsKey(v)) {
                     d = Integer.min(d, dl.get(v) + dr.get(v));
                 }
             }
@@ -178,25 +179,23 @@ public class BidirectionalDijkstra {
         return new Result<Integer>(end - start, relaxed, (d == Integer.MAX_VALUE ? -1 : d));
     }
 
-
     public static List<Edge> higherPriorityEdges(Graph g, List<Edge> edges, int priority) {
         List<Edge> result = new ArrayList<Edge>();
         Vertex v;
-        for(Edge e : edges) {
+        for (Edge e : edges) {
             v = g.getVertex(e.to);
-            if(priority < v.getRank()) {
+            if (priority < v.getRank()) {
                 result.add(e);
             }
         }
         return result;
     }
 
-
-    // This method returns a path that is not the shortest sometimes as 
+    // This method returns a path that is not the shortest sometimes as
     // it terminates optimistically
     public static Result<Integer> shortestPath2(Graph g, long from, long to) {
-        if(from == to) return new Result<Integer>(0, 0, 0);
-
+        if (from == to)
+            return new Result<Integer>(0, 0, 0);
 
         long start = System.nanoTime();
         // Left distances map focuses on the start
@@ -206,10 +205,11 @@ public class BidirectionalDijkstra {
         // Right distances map focuses on the target i.e. to
         Map<Long, Integer> dr = new HashMap<>();
         dr.put(to, 0);
-        
+
         int d = Integer.MAX_VALUE;
 
-        Set<Long> settled = new HashSet<>();
+        Set<Long> settledl = new HashSet<>();
+        Set<Long> settledr = new HashSet<>();
 
         PriorityQueue<PQElem> Ql = new PriorityQueue<>();
         Ql.add(new PQElem(0, from));
@@ -220,6 +220,7 @@ public class BidirectionalDijkstra {
         int i; // 0 means left, 1 means right
         PriorityQueue<PQElem> Qi;
         Map<Long, Integer> di;
+        Set<Long> settledi;
         PQElem minElem;
 
         int QlMin;
@@ -231,37 +232,43 @@ public class BidirectionalDijkstra {
 
         // boolean firstMin = true;
 
-        while(!Ql.isEmpty() || !Qr.isEmpty()) {
+        while (!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
             QrMin = Qr.isEmpty() ? Integer.MAX_VALUE : Qr.peek().key;
 
-            if(QlMin <= QrMin) i = 0;
-            else i = 1;
+            if (QlMin <= QrMin)
+                i = 0;
+            else
+                i = 1;
 
             Qi = i == 0 ? Ql : Qr; // Priority queue
             di = i == 0 ? dl : dr; // Distances
+            settledi = i == 0 ? settledl : settledr;
 
             minElem = Qi.poll();
 
             // This element has already been settled by the other queue
-            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)){
+            if (settledi.contains(minElem.v) && settledl.contains(minElem.v) && settledr.contains(minElem.v)) {
                 break;
+            } else if (settledi.contains(minElem.v)) {
+                continue;
             }
 
-            settled.add(minElem.v);
+            settledi.add(minElem.v);
 
-            if(!g.exists(minElem.v)) break; // Doesn't exists
-            for(Edge e : g.getNeighbours(minElem.v)) {
+            if (!g.exists(minElem.v))
+                break; // Doesn't exists
+            for (Edge e : g.getNeighbours(minElem.v)) {
                 relaxed++;
                 v = e.to;
                 tWeight = e.weight;
                 tKey = di.getOrDefault(v, Integer.MAX_VALUE);
-                if(minElem.key + tWeight < tKey) {
+                if (minElem.key + tWeight < tKey) {
                     di.put(v, minElem.key + tWeight);
                     Qi.add(new PQElem(minElem.key + tWeight, v));
                 }
-                
-                if(dl.containsKey(v) && dr.containsKey(v)) {
+
+                if (dl.containsKey(v) && dr.containsKey(v)) {
                     d = Integer.min(d, dl.get(v) + dr.get(v));
                 }
             }
@@ -272,7 +279,8 @@ public class BidirectionalDijkstra {
     }
 
     public static Result<Integer> shortestPathWeightLimited(Graph g, long from, long to, int weightLimit) {
-        if(from == to) return new Result<Integer>(0, 0, 0);
+        if (from == to)
+            return new Result<Integer>(0, 0, 0);
         // weightLimit = weightLimit / 2;
 
         long start = System.nanoTime();
@@ -283,7 +291,7 @@ public class BidirectionalDijkstra {
         // Right distances map focuses on the target i.e. to
         Map<Long, Integer> dr = new HashMap<>();
         dr.put(to, 0);
-        
+
         int d = Integer.MAX_VALUE;
 
         Set<Long> settled = new HashSet<>();
@@ -306,40 +314,43 @@ public class BidirectionalDijkstra {
         int tKey;
         long v;
 
-        while(!Ql.isEmpty() || !Qr.isEmpty()) {
+        while (!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
             QrMin = Qr.isEmpty() ? Integer.MAX_VALUE : Qr.peek().key;
 
-            if(QlMin <= QrMin) i = 0;
-            else i = 1;
+            if (QlMin <= QrMin)
+                i = 0;
+            else
+                i = 1;
 
             Qi = i == 0 ? Ql : Qr; // Priority queue
             di = i == 0 ? dl : dr; // Distances
 
             minElem = Qi.poll();
 
-            
             // This element has already been settled by the other queue
-            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
+            if (settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
                 break;
             }
-            
-            if(minElem.key/* * 1000 */>= weightLimit) break; // Exceeded the limit
+
+            if (minElem.key/* * 1000 */ >= weightLimit)
+                break; // Exceeded the limit
 
             settled.add(minElem.v);
 
-            if(!g.exists(minElem.v)) break; // Doesn't exists
-            for(Edge e : g.getNeighbours(minElem.v)) {
+            if (!g.exists(minElem.v))
+                break; // Doesn't exists
+            for (Edge e : g.getNeighbours(minElem.v)) {
                 relaxed++;
                 v = e.to;
                 tWeight = e.weight;
                 tKey = di.getOrDefault(v, Integer.MAX_VALUE);
-                if(minElem.key + tWeight < tKey) {
+                if (minElem.key + tWeight < tKey) {
                     di.put(v, minElem.key + tWeight);
                     Qi.add(new PQElem(minElem.key + tWeight, v));
                 }
-                
-                if(dl.containsKey(v) && dr.containsKey(v)) {
+
+                if (dl.containsKey(v) && dr.containsKey(v)) {
                     d = Integer.min(d, dl.get(v) + dr.get(v));
                 }
             }
@@ -350,8 +361,8 @@ public class BidirectionalDijkstra {
     }
 
     public static Result<Integer> shortestPathEdgesLimited(Graph g, long from, long to, int edgeLimit) {
-        if(from == to) return new Result<Integer>(0, 0, 0);
-
+        if (from == to)
+            return new Result<Integer>(0, 0, 0);
 
         long start = System.nanoTime();
         // Left distances map focuses on the start
@@ -361,7 +372,7 @@ public class BidirectionalDijkstra {
         // Right distances map focuses on the target i.e. to
         Map<Long, Integer> dr = new HashMap<>();
         dr.put(to, 0);
-        
+
         int d = Integer.MAX_VALUE;
 
         Set<Long> settled = new HashSet<>();
@@ -384,13 +395,14 @@ public class BidirectionalDijkstra {
         int tKey;
         long v;
 
-
-        while(!Ql.isEmpty() || !Qr.isEmpty()) {
+        while (!Ql.isEmpty() || !Qr.isEmpty()) {
             QlMin = Ql.isEmpty() ? Integer.MAX_VALUE : Ql.peek().key;
             QrMin = Qr.isEmpty() ? Integer.MAX_VALUE : Qr.peek().key;
 
-            if(QlMin <= QrMin) i = 0;
-            else i = 1;
+            if (QlMin <= QrMin)
+                i = 0;
+            else
+                i = 1;
 
             Qi = i == 0 ? Ql : Qr; // Priority queue
             di = i == 0 ? dl : dr; // Distances
@@ -398,37 +410,38 @@ public class BidirectionalDijkstra {
             minElem = Qi.poll();
 
             // This element has already been settled by the other queue
-            if(settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
+            if (settled.contains(minElem.v) && dl.containsKey(minElem.v) && dr.containsKey(minElem.v)) {
                 break;
             }
 
             settled.add(minElem.v);
 
-            if(!g.exists(minElem.v)) break; // Doesn't exists
-            for(Edge e : g.getNeighbours(minElem.v)) {
+            if (!g.exists(minElem.v))
+                break; // Doesn't exists
+            for (Edge e : g.getNeighbours(minElem.v)) {
                 relaxed++;
                 v = e.to;
                 tWeight = e.weight;
                 tKey = di.getOrDefault(v, Integer.MAX_VALUE);
-                if(minElem.key + tWeight < tKey) {
+                if (minElem.key + tWeight < tKey) {
                     di.put(v, minElem.key + tWeight);
                     Qi.add(new PQElem(minElem.key + tWeight, v));
                 }
-                
-                if(dl.containsKey(v) && dr.containsKey(v)) {
+
+                if (dl.containsKey(v) && dr.containsKey(v)) {
                     d = Integer.min(d, dl.get(v) + dr.get(v));
                 }
 
                 // if(relaxed >= edgeLimit) break; // Exceeded the limit
             }
 
-            if(settled.size() >= edgeLimit) break; // Exceeded the limit
+            if (settled.size() >= edgeLimit)
+                break; // Exceeded the limit
         }
         long end = System.nanoTime();
 
         return new Result<Integer>(end - start, relaxed, (d == Integer.MAX_VALUE ? -1 : d));
     }
-
 
     public static void main(String[] args) {
         final PriorityQueue<PQElem> Ql = new PriorityQueue<>();

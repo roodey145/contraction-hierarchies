@@ -30,14 +30,14 @@ class Main {
             y = Float.parseFloat(sc.next());
             vertex = new Graph.Vertex(x, y);
 
-            if(chGraph) {
+            if (chGraph) {
                 rank = Integer.parseInt(sc.next());
                 vertex.registerRank(rank);
             }
 
             g.addVertex(id, vertex);
             // if (i % step == 0) {
-            //     System.out.println((i / step) + " of " + (n / step));
+            // System.out.println((i / step) + " of " + (n / step));
             // }
         }
 
@@ -49,16 +49,15 @@ class Main {
             to = sc.nextLong();
             weight = sc.nextInt();
 
-            if(chGraph) {
+            if (chGraph) {
                 contracted = sc.nextLong();
                 g.addUndirectedEdge(from, to, contracted, weight);
             } else {
                 g.addUndirectedEdge(from, to, weight);
             }
-            
 
             // if (i % step == 0) {
-            //     System.out.println((i / step) + " of " + (m / step));
+            // System.out.println((i / step) + " of " + (m / step));
             // }
         }
 
@@ -71,8 +70,9 @@ class Main {
 
     public static void main(String[] args) throws Exception {
         // File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\denmark.graph");
-        File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\contracted15.graph");
-
+        // File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\contracted15.graph");
+        File file = new File("C:\\Users\\abdu2\\Documents\\GitHub\\contraction-hierarchies\\contracted15.graph");
+        
         Scanner sc = new Scanner(file);
         Graph graph = readGraph(sc, true);
         sc.close();
@@ -94,7 +94,7 @@ class Main {
         result = BidirectionalDijkstra.shortestPath2(graph, 115724, 4214353078l);
         System.out.println("Actual: " + result.result + ", Visited: " + (result.relaxed) + ", Time: " + (result.time / 1000));
 
-        // if(true) return;
+        if(true) return;
 
         int seed = 5;
         Random rand = new Random(seed);
