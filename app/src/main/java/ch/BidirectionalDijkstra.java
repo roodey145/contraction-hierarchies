@@ -248,7 +248,7 @@ public class BidirectionalDijkstra {
             minElem = Qi.poll();
 
             // This element has already been settled by the other queue
-            if (settledi.contains(minElem.v) && settledl.contains(minElem.v) && settledr.contains(minElem.v)) {
+            if (/*settledi.contains(minElem.v) && */settledl.contains(minElem.v) && settledr.contains(minElem.v)) {
                 break;
             } else if (settledi.contains(minElem.v)) {
                 continue;
