@@ -83,23 +83,51 @@ class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        // File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\denmark.graph");
-        // File file = new File("C:\\Users\\abdu2\\Documents\\GitHub\\contraction-hierarchies\\contracted15.graph");
+
+        /////////////////////////////////////////////////////////////////////
+        // Preprocess the graph and store it in file new-contracted.graph //
+        ///////////////////////////////////////////////////////////////////
+        /// Uncomment the lines below and run the method
         // Graph graph = Main.getGraph("denmark", false);
         // ContractionHierachy ch = new ContractionHierachy();
         // ch.storeGraph(graph);
         // ch.preprocess();
         // System.out.println("Done PreProcessing");
-        // graph.storeGraph("contracted16");
+        // graph.storeGraph("new-contracted");
 
-        // PriorityQueue<PQElem> pq = new PriorityQueue<>();
-        // pq.add(new PQElem(5, 0));
-        // pq.add(new PQElem(3, 0));
-        // System.out.println(pq.peek().key);
+        /////////////////////////////////////////////////////////////////////////
+        // Run dijkstra and bidirectiona dijkstra using 115724 and 4214353078 //
+        ///////////////////////////////////////////////////////////////////////
+        /// This will print out number of relaxed edges and time
+        /// Uncomment the line below. The algorithms runs on denmark.graph
         // Tests.TestNonContractedDenmarkGraph();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Run dijkstra and bidirectional dijkstra and Contraction Hierarchy using 115724 and 4214353078 //
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+        /// This will print out number of relaxed edges and time
+        /// Uncomment the line below. The algorithms runs on contracted16.graph
         // Tests.TestContractedDenmarkGraph();
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // Run dijkstra and bidirectional on denmark graph using 1000 vertices pairs //
+        //////////////////////////////////////////////////////////////////////////////
+        /// You need to have the folder csv as a subfolder of contraction-hierarchies folder
+        /// Running the below method will result in a .csv file containing time, vertices
+        /// and contracted edges for the different algorithms. The name of the file is
+        /// the same as the number of pairs of vertices, in this case nonContracted-1000.csv
+        /// Uncomment the line below. The algorithms runs on denmark graph.
         // Tests.repeatedTestOnNonContractedGraph(1000, 50);
-        Tests.repeatedTestOnContractedGraph(1000, 50);
+        
+
+        //////////////////////////////////////////////////////////////////////////////////////
+        // Run all the shortest path algorithms on denmark graph using 1000 vertices pairs //
+        ////////////////////////////////////////////////////////////////////////////////////
+        /// You need to have the folder csv as a subfolder of contraction-hierarchies folder
+        /// Running the below method will result in a .csv file containing time, vertices
+        /// and contracted edges for the different algorithms. The name of the file is
+        /// the same as the number of pairs of vertices, in this case contracted16-1000.csv
+        /// Uncomment the line below. The algorithms runs on contracted16 graph.
+        // Tests.repeatedTestOnContractedGraph(1000, 50);
     }
 }

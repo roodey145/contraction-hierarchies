@@ -1,28 +1,11 @@
-# Template Contraction Hierarchies Assignment
+# Run the experiments
+I tried to make the pipelines as simple as possible. All you need is to open the Main.java class.
+Inside the main static method I have the code for all the experiments commented out.
+Each part of the code has a title and an explination explaining what it does
 
-This repository presents a Java-based template to start with the contraction hierarchies assignment in Applied algorithms. 
-
-## Build
-
-The project uses gradle. Carry out the tests using `gradle test` and build the jar file using `gradle jar`. 
-
-The graph is read from standard input and a test graph `test.graph` is provided in this repository. 
-
-Basic file reading is already implemented in the Main class. An example run is 
-
-```
-gradle jar
-java -jar app/build/libs/app.jar < test.graph
-```
-
-(Note that we simulate undirected edges by adding directed edges in both directions, so the count that is printed is twice as large as the number in the graph provided.)
-
-## Code structure
-
-We have implemented basic functionality such as graph reading, a graph data structure using HashMaps, and a basic Dijkstra implementation that keeps track of visited vertices using HashSets.  Basic unit tests for the Dijkstra implementation are available as well. 
-
-To solve the assignment, you probably need to update the API by changing method signatures to incorporate additional functionality.
-
-
-
-
+Calling the method:
+Tests.repeatedTestOnContractedGraph(1000, 50);
+will result in the contracted-1000.csv being created inside the csv folder.
+To process the data in that file you just need to open the dataProcessor.py file and run it,
+that will result in two images being created. The first one is "Relaxed Edges.png" and
+"Running Time.png". 

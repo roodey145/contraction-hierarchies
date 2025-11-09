@@ -20,7 +20,7 @@ public class Tests {
     }
 
     public static void TestContractedDenmarkGraph() throws FileNotFoundException {
-        Graph graph = Main.getGraph("contracted15", true);
+        Graph graph = Main.getGraph("contracted16", true);
 
         long from = 115724;
         long to = 4214353078l;
