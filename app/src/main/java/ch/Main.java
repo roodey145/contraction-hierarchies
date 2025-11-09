@@ -3,12 +3,13 @@ package ch;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 import ch.Graph.Vertex;
 
 class Main {
-    private static final String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+    public static final String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
     private static long[] ids;
 
     public static Graph readGraph(Scanner sc, boolean chGraph) {
@@ -53,7 +54,7 @@ class Main {
 
             if (chGraph) {
                 contracted = sc.nextLong();
-                g.addUndirectedEdge(from, to, contracted, weight);
+                g.addEdge(from, to, contracted, weight);
             } else {
                 g.addUndirectedEdge(from, to, weight);
             }
@@ -72,6 +73,7 @@ class Main {
 
     public static Graph getGraph(String fileName, boolean contractedGraph) throws FileNotFoundException {
         File file = new File( currentPath + "/" + fileName + ".graph" );
+        System.out.println(currentPath + "/" + fileName + ".graph");
         Scanner sc = new Scanner(file);
         Graph graph = Main.readGraph(sc, contractedGraph);
         sc.close();
@@ -83,10 +85,21 @@ class Main {
     public static void main(String[] args) throws Exception {
         // File file = new File("C:\\Users\\abdu2\\Desktop\\ITU\\semester3\\Applied Algorithm\\contraction-hierarchies\\denmark.graph");
         // File file = new File("C:\\Users\\abdu2\\Documents\\GitHub\\contraction-hierarchies\\contracted15.graph");
-        
-        Tests.TestNonContractedDenmarkGraph();
-        Tests.TestContractedDenmarkGraph();
-        
-        Tests.repeatedTest(1000);
+        // Graph graph = Main.getGraph("denmark", false);
+        // ContractionHierachy ch = new ContractionHierachy();
+        // ch.storeGraph(graph);
+        // ch.preprocess();
+        // System.out.println("Done PreProcessing");
+        // graph.storeGraph("contracted16");
+
+        // PriorityQueue<PQElem> pq = new PriorityQueue<>();
+        // pq.add(new PQElem(5, 0));
+        // pq.add(new PQElem(3, 0));
+        // System.out.println(pq.peek().key);
+        // Tests.TestNonContractedDenmarkGraph();
+        // Tests.TestContractedDenmarkGraph();
+
+        // Tests.repeatedTestOnNonContractedGraph(1000, 50);
+        Tests.repeatedTestOnContractedGraph(1000, 50);
     }
 }

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Graph {
 
     int n, m;
-    Graph contracted;
+    // Graph contracted;
 
     public static class Vertex {
 

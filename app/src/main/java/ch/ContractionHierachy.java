@@ -44,7 +44,6 @@ public class ContractionHierachy {
         int smallStep = 10;
         PQElem elem;
         int tRank;
-        int reorder = 0;
 
         while(!pq.isEmpty()) {
             // Get the top element of the queue
@@ -60,22 +59,16 @@ public class ContractionHierachy {
                 // Update element weight
                 elem.updateKey(tRank);
                 pq.add(elem);
-
-                if((++reorder) >= ids.length) {
-                    System.out.println("Size: " + pq.size() + ", Reordered: " + reorder);
-                    reorder = 0;
-                }
-                // System.out.print("|");
                 continue;
             }
 
+            // This section would reorder all the vertices rank multiple times during the preprocess
             // if(pq.size() % step == 0 && pq.size() != initialSize) {
             //     orderQueue();
             // }
 
             // Contract vertex
             g.contract(elem.v, ++contractedVertices);
-            reorder = 0;
 
             // System.out.print(".");
 
@@ -112,6 +105,6 @@ public class ContractionHierachy {
         // this might result in e.g. -5 - 10 i.e. -15. This number is negated
         // due to the Priority queue as it starts from the lowest ranked edges
         // and we want to start with useless edges first.
-        return /*-*/(/*g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id) */ g.getEdgeDifference(id) /*-g.degree(id)+ g.avgWeight(id)*/);
+        return /*-*/(/*g.getEdgeDifference(id) - g.degree(id) - g.avgWeight(id) */ g.getEdgeDifference(id)  /*-g.degree(id)+ g.avgWeight(id)*/);
     }
 }
